@@ -604,3 +604,25 @@ cat("Pseudo R-squared:", round(pseudo_r2, 4), "\n")
 cat("Observations used:", length(logit_model$fitted.values), "\n")
 
 ```
+Full stepwise of linear regression without any changes to monthly spend. Finds overall customer base profile and what they like to do. Can create associations based on each coefficient? I will implement one with the addition of log of total avg monthly spend below because of skew to normalize. 
+```{r}
+model_full_1 <- lm( customer_data$`Total Avg Monthly Spend`~ .-CustomerID-`Monthly Spend ProductA` - `Cumulative Spend ProductA` -
+    `Monthly Spend ProductB` - `Cumulative Spend ProductB` - 
+    `Monthly Spend ProductC` - `Cumulative Spend ProductC` - 
+    `High Value Customer` ,
+                  data = customer_data)
+
+step_model <- step(model_full_1, direction = "backward")
+summary(step_model)
+```
+Had to get omit the spending of each product as stepwise said it was perfect and no need because it is a direct input into the total_monthly_avg. Now we see and the log creates a much better model for our customer base. R squared is .85 vs .82 not log 
+```{r}
+model_full_2 <- lm( log(customer_data$`Total Avg Monthly Spend`)~ .-CustomerID-`Monthly Spend ProductA` - `Cumulative Spend ProductA` -
+    `Monthly Spend ProductB` - `Cumulative Spend ProductB` - 
+    `Monthly Spend ProductC` - `Cumulative Spend ProductC` - 
+    `High Value Customer` ,
+                  data = customer_data)
+
+step_model_1 <- step(model_full_2, direction = "backward")
+summary(step_model_1)
+```
